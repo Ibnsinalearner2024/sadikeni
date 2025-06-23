@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dimensionnement Interactif des Installations Électriques</title>
+    <meta name="description" content="Application interactive pour le dimensionnement des installations électriques selon les normes NFC 15-100">
+    <meta name="keywords" content="électrique, dimensionnement, calcul, câbles, protection, puissance">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --secondary: #6c757d;
+            --success: #198754;
+            --danger: #dc3545;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: #ffffff;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+        .workflow-step {
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            border: 2px solid #dee2e6;
+        }
+        .workflow-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+        .calculator-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .calculator-input:focus {
+            outline: none;
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .tab-btn.active, .protection-tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        .result-box {
+            background-color: #e9ecef;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            font-weight: 600;
+        }
+        .compliance-ok { color: var(--success); }
+        .compliance-fail { color: var(--danger); }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Header & Navigation -->
+    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-gray-800">Dimensionnement Électrique</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#workflow" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Flux de Travail</a>
+                        <a href="#power-balance" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Bilan de Puissance</a>
+                        <a href="#cable-sizing" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Câbles & Chute de Tension</a>
+                        <a href="#protection" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Protections</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <!-- Section 1: Introduction -->
+        <section id="introduction" class="text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">L'Art et la Science du Dimensionnement Électrique</h2>
+            <p class="max-w-3xl mx-auto text-lg text-gray-600">
+                Une application interactive pour explorer les étapes clés du dimensionnement d'une installation électrique industrielle basse tension, de la planification à la protection, conformément aux normes de sécurité et d'efficacité.
+            </p>
+        </section>
+
+        <!-- Section 2: Workflow -->
+        <section id="workflow" class="mt-16 scroll-mt-16">
+            <div class="text-center">
+                <h3 class="text-2xl font-bold mb-2">Le Flux de Travail du Dimensionnement</h3>
+                <p class="text-gray-600 mb-8">Cliquez sur une étape pour explorer les détails et les outils associés.</p>
+            </div>
+            <div class="relative">
+                <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gray-300 -translate-y-1/2"></div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <a href="#power-balance" class="workflow-step card p-6 text-center block">
+                        <div class="text-3xl mb-2">⚡</div>
+                        <h4 class="font-semibold">Bilan de Puissance</h4>
+                        <p class="text-sm text-gray-500">Calculer la charge totale.</p>
+                    </a>
+                    <a href="#cable-sizing" class="workflow-step card p-6 text-center block">
+                        <div class="text-3xl mb-2">🔌</div>
+                        <h4 class="font-semibold">Dimensionnement des Câbles</h4>
+                        <p class="text-sm text-gray-500">Choisir la bonne section.</p>
+                    </a>
+                    <a href="#cable-sizing" class="workflow-step card p-6 text-center block">
+                        <div class="text-3xl mb-2">📉</div>
+                        <h4 class="font-semibold">Chute de Tension</h4>
+                        <p class="text-sm text-gray-500">Vérifier les limites.</p>
+                    </a>
+                    <a href="#protection" class="workflow-step card p-6 text-center block">
+                        <div class="text-3xl mb-2">🛡️</div>
+                        <h4 class="font-semibold">Protection & Sélectivité</h4>
+                        <p class="text-sm text-gray-500">Garantir la sécurité.</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Power Balance Calculator -->
+        <section id="power-balance" class="mt-16 scroll-mt-16">
+            <div class="card p-8">
+                <h3 class="text-2xl font-bold mb-1">Calculateur de Bilan de Puissance</h3>
+                <p class="text-gray-600 mb-6">Estimez la puissance totale requise par votre installation. Ajoutez des charges, appliquez des facteurs de simultanéité (ks) et observez le résultat.</p>
+                <div id="load-list" class="space-y-4 mb-4">
+                    <!-- Load entries will be injected here -->
+                </div>
+                <button id="add-load-btn" class="btn-primary px-4 py-2 rounded-md text-sm font-medium mb-6">+ Ajouter une charge</button>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="result-box">Puissance Active (P): <span id="total-p">0</span> kW</div>
+                    <div class="result-box">Puissance Réactive (Q): <span id="total-q">0</span> kVAR</div>
+                    <div class="result-box">Puissance Apparente (S): <span id="total-s">0</span> kVA</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Cable Sizing and Voltage Drop -->
+        <section id="cable-sizing" class="mt-16 scroll-mt-16">
+            <div class="card p-8">
+                <h3 class="text-2xl font-bold mb-1">Calculateur de Câbles & Chute de Tension</h3>
+                <p class="text-gray-600 mb-6">Déterminez la section de câble minimale requise et vérifiez la conformité de la chute de tension selon la norme NF C 15-100.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-semibold mb-4">Paramètres du Circuit</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="cs-voltage-type" class="block text-sm font-medium text-gray-700">Type de réseau</label>
+                                <select id="cs-voltage-type" class="calculator-input mt-1">
+                                    <option value="tri">Triphasé (400V)</option>
+                                    <option value="mono">Monophasé (230V)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="cs-current" class="block text-sm font-medium text-gray-700">Courant d'emploi (A)</label>
+                                <input type="number" id="cs-current" class="calculator-input mt-1" value="50">
+                            </div>
+                            <div>
+                                <label for="cs-length" class="block text-sm font-medium text-gray-700">Longueur du câble (m)</label>
+                                <input type="number" id="cs-length" class="calculator-input mt-1" value="100">
+                            </div>
+                            <div>
+                                <label for="cs-cosphi" class="block text-sm font-medium text-gray-700">Facteur de puissance (cos φ)</label>
+                                <input type="number" id="cs-cosphi" class="calculator-input mt-1" value="0.85" step="0.01" min="0" max="1">
+                            </div>
+                            <div>
+                                <label for="cs-usage" class="block text-sm font-medium text-gray-700">Type d'usage</label>
+                                <select id="cs-usage" class="calculator-input mt-1">
+                                    <option value="motor">Moteurs / Autres</option>
+                                    <option value="light">Éclairage</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h4 class="font-semibold mb-4">Résultats du Dimensionnement</h4>
+                        <div class="space-y-4">
+                            <div class="result-box">Section Minimale Calculée: <span id="cable-section-result">0</span> mm²</div>
+                            <div class="result-box">Section Normalisée Recommandée: <span id="cable-section-norm">0</span> mm²</div>
+                            <div class="result-box">Chute de Tension: <span id="voltage-drop-result">0</span> %</div>
+                            <div class="result-box">Conformité: <span id="compliance-result">---</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Protection -->
+        <section id="protection" class="mt-16 scroll-mt-16">
+            <div class="text-center">
+                <h3 class="text-2xl font-bold mb-2">Coordination des Protections & Régimes de Neutre</h3>
+                <p class="text-gray-600 mb-8">Comprendre les stratégies de protection pour garantir la sécurité et la continuité de service.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="card p-8">
+                    <h4 class="font-semibold text-lg mb-4 text-center">Sélectivité vs. Filiation</h4>
+                    <div id="protection-display" class="border p-4 rounded-lg bg-gray-50 min-h-[200px]">
+                        <!-- Content will be injected by JS -->
+                    </div>
+                    <div class="flex justify-center mt-4">
+                        <div class="inline-flex rounded-md shadow-sm">
+                            <button onclick="showProtection('selectivity')" class="protection-tab-btn relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 active">Sélectivité</button>
+                            <button onclick="showProtection('filiation')" class="protection-tab-btn -ml-px relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">Filiation</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-8">
+                    <h4 class="font-semibold text-lg mb-4 text-center">Explorer les Régimes de Neutre</h4>
+                    <div class="flex justify-center mb-4 border-b">
+                        <button onclick="showNeutral('TT')" class="neutral-tab-btn flex-1 p-2 text-sm font-medium active">TT</button>
+                        <button onclick="showNeutral('TN')" class="neutral-tab-btn flex-1 p-2 text-sm font-medium">TN (S/C)</button>
+                        <button onclick="showNeutral('IT')" class="neutral-tab-btn flex-1 p-2 text-sm font-medium">IT</button>
+                    </div>
+                    <div id="neutral-display">
+                        <!-- Content will be injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-16 border-t">
+        <div class="container mx-auto px-6 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h4 class="font-semibold mb-4">Ressources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="https://www.ute-fr.com/" class="text-blue-600 hover:underline" target="_blank">Norme NFC 15-100</a></li>
+                        <li><a href="#" class="text-blue-600 hover:underline">Guide d'utilisation</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Contact</h4>
+                    <p>email@exemple.com</p>
+                </div>
+                <div class="text-center md:text-right">
+                    <button onclick="window.print()" class="btn-primary px-4 py-2 rounded-md mb-4">
+                        Exporter en PDF
+                    </button>
+                    <p class="text-sm text-gray-600">&copy; 2024 Dimensionnement Électrique</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- POWER BALANCE CALCULATOR ---
+            const loadList = document.getElementById('load-list');
+            const addLoadBtn = document.getElementById('add-load-btn');
+            let loadId = 0;
+
+            const updateTotalPower = () => {
+                try {
+                    let totalP = 0, totalQ = 0;
+                    document.querySelectorAll('.load-entry').forEach(entry => {
+                        const p = parseFloat(entry.querySelector('.load-p').value) || 0;
+                        let cosphi = parseFloat(entry.querySelector('.load-cosphi').value);
+                        
+                        // Validation cosphi
+                        cosphi = Math.min(1, Math.max(0, isNaN(cosphi) ? 1 : cosphi));
+                        
+                        const ks = parseFloat(entry.querySelector('.load-ks').value) || 1;
+                        const p_util = p * ks;
+                        const q_util = (cosphi < 1) ? p_util * Math.tan(Math.acos(cosphi)) : 0;
+                        
+                        totalP += p_util;
+                        totalQ += q_util;
+                    });
+
+                    const totalS = Math.sqrt(totalP**2 + totalQ**2);
+                    document.getElementById('total-p').textContent = totalP.toFixed(2);
+                    document.getElementById('total-q').textContent = totalQ.toFixed(2);
+                    document.getElementById('total-s').textContent = totalS.toFixed(2);
+                    
+                    // Sauvegarde automatique
+                    saveToLocalStorage();
+                } catch (error) {
+                    console.error("Erreur dans le calcul:", error);
+                }
+            };
+
+            const addLoad = () => {
+                loadId++;
+                const div = document.createElement('div');
+                div.className = 'load-entry grid grid-cols-1 md:grid-cols-5 gap-2 items-center';
+                div.innerHTML = `
+                    <input type="text" placeholder="Nom de la charge (ex: Moteur 1)" class="md:col-span-2 calculator-input">
+                    <input type="number" class="load-p calculator-input" placeholder="P (kW)" value="10">
+                    <input type="number" class="load-cosphi calculator-input" placeholder="cos φ" value="0.85" step="0.01">
+                    <input type="number" class="load-ks calculator-input" placeholder="ks" value="0.8" step="0.1">
+                    <button class="remove-load-btn text-red-500 hover:text-red-700 font-bold">X</button>
+                `;
+                loadList.appendChild(div);
+                
+                div.querySelector('.remove-load-btn').addEventListener('click', () => {
+                    div.remove();
+                    updateTotalPower();
+                });
+                
+                div.querySelectorAll('input').forEach(input => input.addEventListener('input', updateTotalPower));
+                updateTotalPower();
+            };
+
+            addLoadBtn.addEventListener('click', addLoad);
+            addLoad(); // Add one load by default
+
+            // --- CABLE SIZING CALCULATOR ---
+            const csInputs = ['cs-voltage-type', 'cs-current', 'cs-length', 'cs-cosphi', 'cs-usage'];
+            csInputs.forEach(id => document.getElementById(id).addEventListener('input', updateCableSizing));
+
+            function updateCableSizing() {
+                try {
+                    const type = document.getElementById('cs-voltage-type').value;
+                    const current = parseFloat(document.getElementById('cs-current').value) || 0;
+                    const length = parseFloat(document.getElementById('cs-length').value) || 0;
+                    let cosphi = parseFloat(document.getElementById('cs-cosphi').value);
+                    
+                    // Validation cosphi
+                    cosphi = Math.min(1, Math.max(0, isNaN(cosphi) ? 1 : cosphi));
+                    
+                    const usage = document.getElementById('cs-usage').value;
+                    const U_ref = (type === 'tri') ? 400 : 230;
+                    const limit_percent = (usage === 'light') ? 0.03 : 0.05;
+                    const Ua = U_ref * limit_percent;
+                    const KAPPA_CU = 58;
+                    const factor = (type === 'tri') ? Math.sqrt(3) : 2;
+                    
+                    let A = (factor * length * current * cosphi) / (KAPPA_CU * Ua);
+                    if(isNaN(A)) A = 0;
+                    
+                    document.getElementById('cable-section-result').textContent = A.toFixed(2);
+                    
+                    const standardSections = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240];
+                    const recommendedSection = standardSections.find(s => s >= A) || standardSections[standardSections.length-1];
+                    document.getElementById('cable-section-norm').textContent = recommendedSection;
+                    
+                    // Recalculate voltage drop with recommended section
+                    const R = (1 / KAPPA_CU) * (length / recommendedSection);
+                    const X = 0.08 * length / 1000; // Approx. 0.08 Ohm/km
+                    
+                    let deltaU_real_volt = (type === 'tri') 
+                        ? Math.sqrt(3) * current * (R * cosphi + X * Math.sin(Math.acos(cosphi)))
+                        : current * (R * cosphi + X * Math.sin(Math.acos(cosphi))) * 2;
+                    
+                    if(isNaN(deltaU_real_volt)) deltaU_real_volt = 0;
+                    
+                    const deltaU_percent = (deltaU_real_volt / U_ref) * 100;
+                    document.getElementById('voltage-drop-result').textContent = deltaU_percent.toFixed(2);
+                    
+                    const complianceResult = document.getElementById('compliance-result');
+                    if (deltaU_percent <= limit_percent * 100) {
+                        complianceResult.textContent = 'OK';
+                        complianceResult.className = 'compliance-ok';
+                    } else {
+                        complianceResult.textContent = 'NON CONFORME';
+                        complianceResult.className = 'compliance-fail';
+                    }
+                    
+                    // Sauvegarde automatique
+                    saveToLocalStorage();
+                } catch (error) {
+                    console.error("Erreur dans le calcul des câbles:", error);
+                }
+            }
+
+            // --- PROTECTION & NEUTRAL SYSTEMS ---
+            const protectionDisplay = document.getElementById('protection-display');
+            const neutralDisplay = document.getElementById('neutral-display');
+            const protectionData = {
+                selectivity: {
+                    title: 'Selectivité (Discrimination)',
+                    desc: 'Seul le disjoncteur le plus proche du défaut (aval) se déclenche. L\'alimentation du reste de l\'installation est maintenue. Crucial pour la continuité de service.',
+                    icon: '☑'
+                },
+                filiation: {
+                    title: 'Filiation (Cascading)',
+                    desc: 'Le disjoncteur amont aide le disjoncteur aval à couper un court-circuit. Les deux peuvent se déclencher, interrompant une plus grande partie de l\'installation. Solution économique.',
+                    icon: '↘️'
+                }
+            };
+
+            const neutralData = {
+                TT: { 
+                    title: 'Régime TT (Terre-Terre)', 
+                    desc: 'Le neutre de la source est à la terre. Les masses de l\'installation ont leur propre prise de terre. La protection des personnes est assurée par des Dispositifs Différentiels (DDR). Simple mais faible continuité de service.', 
+                    icon: '⏚' 
+                },
+                TN: { 
+                    title: 'Régime TN (Terre-Neutre)', 
+                    desc: 'Le neutre de la source est à la terre. Les masses sont raccordées au neutre (via le conducteur PE ou PEN). Le défaut d\'isolement devient un court-circuit, déclenchant les disjoncteurs. Bonne continuité.', 
+                    icon: '⏚' 
+                },
+                IT: { 
+                    title: 'Régime IT (Isolé-Terre)', 
+                    desc: 'Le neutre est isolé de la terre. Le 1er défaut est signalé mais ne déclenche pas, assurant une continuité de service maximale. Utilisé dans les hôpitaux et les industries critiques.', 
+                    icon: '⚡' 
+                }
+            };
+
+            window.showProtection = (type) => {
+                const data = protectionData[type];
+                protectionDisplay.innerHTML = `<h5 class="font-bold text-lg text-center mb-2">${data.title} ${data.icon}</h5><p class="text-sm text-gray-700 text-center">${data.desc}</p>`;
+                document.querySelectorAll('.protection-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector(`[onclick="showProtection('${type}')"]`).classList.add('active');
+                saveToLocalStorage();
+            };
+
+            window.showNeutral = (type) => {
+                const data = neutralData[type];
+                neutralDisplay.innerHTML = `<h5 class="font-bold text-lg mb-2">${data.title} ${data.icon}</h5><p class="text-sm text-gray-700">${data.desc}</p>`;
+                document.querySelectorAll('.neutral-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector(`[onclick="showNeutral('${type}')"]`).classList.add('active');
+                saveToLocalStorage();
+            };
+
+            // --- LOCAL STORAGE ---
+            function saveToLocalStorage() {
+                const saveData = {
+                    loads: Array.from(document.querySelectorAll('.load-entry')).map(entry => ({
+                        name: entry.querySelector('input[type="text"]').value,
+                        p: entry.querySelector('.load-p').value,
+                        cosphi: entry.querySelector('.load-cosphi').value,
+                        ks: entry.querySelector('.load-ks').value
+                    })),
+                    cableParams: {
+                        type: document.getElementById('cs-voltage-type').value,
+                        current: document.getElementById('cs-current').value,
+                        length: document.getElementById('cs-length').value,
+                        cosphi: document.getElementById('cs-cosphi').value,
+                        usage: document.getElementById('cs-usage').value
+                    },
+                    protectionType: document.querySelector('.protection-tab-btn.active')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1],
+                    neutralType: document.querySelector('.neutral-tab-btn.active')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1]
+                };
+                localStorage.setItem('electricalDesignData', JSON.stringify(saveData));
+            }
+
+            function loadFromLocalStorage() {
+                const saved = JSON.parse(localStorage.getItem('electricalDesignData'));
+                if (saved) {
+                    // Charger les charges
+                    if (saved.loads && saved.loads.length > 0) {
+                        loadList.innerHTML = '';
+                        saved.loads.forEach(load => {
+                            addLoad();
+                            const lastEntry = loadList.lastElementChild;
+                            lastEntry.querySelector('input[type="text"]').value = load.name;
+                            lastEntry.querySelector('.load-p').value = load.p;
+                            lastEntry.querySelector('.load-cosphi').value = load.cosphi;
+                            lastEntry.querySelector('.load-ks').value = load.ks;
+                        });
+                    }
+
+                    // Charger les paramètres câbles
+                    if (saved.cableParams) {
+                        document.getElementById('cs-voltage-type').value = saved.cableParams.type;
+                        document.getElementById('cs-current').value = saved.cableParams.current;
+                        document.getElementById('cs-length').value = saved.cableParams.length;
+                        document.getElementById('cs-cosphi').value = saved.cableParams.cosphi;
+                        document.getElementById('cs-usage').value = saved.cableParams.usage;
+                    }
+
+                    // Charger les états de protection/neutre
+                    if (saved.protectionType) showProtection(saved.protectionType);
+                    if (saved.neutralType) showNeutral(saved.neutralType);
+                }
+            }
+
+            // Initial calls
+            loadFromLocalStorage();
+            updateCableSizing();
+            showProtection('selectivity');
+            showNeutral('TT');
+
+            // Sauvegarde périodique
+            setInterval(saveToLocalStorage, 30000);
+        });
+    </script>
+</body>
+</html>
